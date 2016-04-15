@@ -23,12 +23,11 @@ from bs4 import BeautifulSoup
 class SampleCorpus(object):
  
     cid_prefix = '1000000'
-    dtl_prefix = 'dtl' + cid_prefix
     
     url_page_list  = 'http://potaru.com/service/page/?sortType=createDateDesc'
-    url_dtl_prefix = 'http://potaru.com/' + dtl_prefix
+    url_dtl_prefix = 'http://potaru.com/p/'
     
-    url_dtl = 'http://potaru.com/dtl{cid}/'
+    url_dtl = 'http://potaru.com/p/{cid}'
     
     doc_db_create_ddl = """
         create table if not exists doc (
@@ -642,8 +641,8 @@ class SampleCorpus(object):
         try:
             html = urllib2.urlopen(url).read()
             soup = BeautifulSoup(html)
-            content = soup.find(id='pageItems')
-            return content.get_text()
+            items = soup.find_all(id=re.compile(r"^item\-[0-9]+$"))
+            return '\n'.join([item.get_text().strip() for item in items])
         except Exception, detail:
             print "Error while get text.", detail
             raise
